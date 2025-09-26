@@ -1,0 +1,53 @@
+name: Test (helpers & actions)
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  test-library:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup helpers (dogfood the setup action)
+        uses: ./actions/setup-helpers
+
+      - name: Run library tests
+        shell: bash
+        run: |
+          bash tests/test_ci_helpers.sh
+
+  test-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Create simple fixtures
+      - name: Create fixtures
+        run: |
+          echo "enabled: true" > config.yaml
+          echo "hello world"   > hw.txt
+
+      - name: check-file exists
+        uses: ./actions/check-file
+        with:
+          path: config.yaml
+
+      - name: grep-file finds needle
+        uses: ./actions/grep-file
+        with:
+          needle: "enabled: true"
+          file: config.yaml
+
+      - name: run-cmd success
+        uses: ./actions/run-cmd
+        with:
+          cmd: "bash -lc 'test -f config.yaml'"
+
+      - name: output-contains happy path
+        uses: ./actions/output-contains
+        with:
+          cmd: "cat hw.txt"
+          needle: "hello"

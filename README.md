@@ -1,3 +1,6 @@
+[![Lint (shellcheck)](https://github.com/MTCam/ci-helpers/actions/workflows/lint.yml/badge.svg)](https://github.com/MTCam/ci-helpers/actions/workflows/lint.yml)
+[![Test (helpers & actions)](https://github.com/MTCam/ci-helpers/actions/workflows/test.yml/badge.svg)](https://github.com/MTCam/ci-helpers/actions/workflows/test.yml)
+
 # CI Helpers
 
 A collection of reusable Bash helpers and GitHub Actions for CI pipelines.
