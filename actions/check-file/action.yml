@@ -1,0 +1,14 @@
+name: Check file exists
+description: Return success if a file exists.
+inputs:
+  path:
+    description: File path to check
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        set -Eeuo pipefail
+        source "$GITHUB_ACTION_PATH/../../ci/ci-helpers.sh"
+        ci_check_file "${{ inputs.path }}"

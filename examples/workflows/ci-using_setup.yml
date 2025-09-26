@@ -1,0 +1,37 @@
+name: CI (with setup-helpers)
+
+on: [push, pull_request]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Bring in your helpers via the composite action
+      - name: Setup shared CI helpers
+        uses: MTCam/ci-helpers/actions/setup-helpers@v1
+
+      - name: Show/Use explicit path
+        shell: bash
+        run: |
+          # We already auto-sourced; this just shows the output/env
+          echo "Helpers at: ${{ steps.setup.outputs.helpers_path }}"
+          echo "Env says:   $CI_HELPERS_SH"
+
+      # From here on, all bash steps *already* have the helpers sourced
+      - name: Verify files and tools
+        shell: bash
+        run: |
+          ci_check_file README.md
+          ci_require_cmd git
+
+      - name: Build
+        shell: bash
+        run: |
+          ci_check_command_rc "make -j"
+
+      - name: Check service status
+        shell: bash
+        run: |
+          ci_check_output_contains "ready" my_service --status

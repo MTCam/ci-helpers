@@ -1,0 +1,17 @@
+name: Check command output contains
+description: Run a command and assert stdout/stderr contains a fixed substring.
+inputs:
+  cmd:
+    description: Command to run (single string)
+    required: true
+  needle:
+    description: Expected substring
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        set -Eeuo pipefail
+        source "$GITHUB_ACTION_PATH/../../ci/ci-helpers.sh"
+        ci_check_output_contains "${{ inputs.needle }}" bash -lc "${{ inputs.cmd }}"

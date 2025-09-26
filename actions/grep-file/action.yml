@@ -1,0 +1,17 @@
+name: Grep file for string
+description: Confirm a fixed string exists in a file (grep -F).
+inputs:
+  needle:
+    description: String to find
+    required: true
+  file:
+    description: File to search
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        set -Eeuo pipefail
+        source "$GITHUB_ACTION_PATH/../../ci/ci-helpers.sh"
+        ci_check_grep "${{ inputs.needle }}" "${{ inputs.file }}"

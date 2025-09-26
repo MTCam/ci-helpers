@@ -1,0 +1,34 @@
+name: Setup CI Helpers
+description: Make ci-helpers.sh available and source it for subsequent bash steps.
+outputs:
+  helpers_path:
+    description: Absolute path to ci-helpers.sh
+    value: ${{ steps.expose.outputs.path }}
+runs:
+  using: composite
+  steps:
+    - id: expose
+      shell: bash
+      run: |
+        set -Eeuo pipefail
+        # Resolve helper path relative to this action
+        HELPERS="$GITHUB_ACTION_PATH/../../ci/ci-helpers.sh"
+        if [[ ! -f "$HELPERS" ]]; then
+          echo "ci-helpers.sh not found at: $HELPERS" >&2
+          exit 1
+        fi
+
+        # 1) Expose the path as an output
+        echo "path=$HELPERS" >> "$GITHUB_OUTPUT"
+
+        # 2) Auto-source for *subsequent* bash steps by appending to $BASH_ENV
+        #    Any later 'shell: bash' step will start by sourcing the helpers.
+        {
+          echo "# Added by ci-helpers setup"
+          echo "source \"$HELPERS\""
+        } >> "$BASH_ENV"
+
+        # 3) Also export an env var (handy in scripts)
+        echo "CI_HELPERS_SH=$HELPERS" >> "$GITHUB_ENV"
+
+        echo "ci-helpers ready at $HELPERS"

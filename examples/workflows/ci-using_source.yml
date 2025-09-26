@@ -1,0 +1,31 @@
+name: CI using sourced library
+
+on: [push, pull_request]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pull your helpers alongside the project
+      - name: Get ci-helpers
+        uses: actions/checkout@v4
+        with:
+          repository: MTCam/ci-helpers
+          ref: v1
+          path: .ci-helpers
+
+      - name: Run checks with sourced helpers
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          source .ci-helpers/ci/ci-helpers.sh
+
+          ci_check_file README.md
+          ci_check_grep "enabled: true" config.yaml
+
+          ci_require_cmd git
+          ci_check_command_rc "make -j"
+
+          ci_check_output_contains "ready" my_service --status

@@ -1,0 +1,14 @@
+name: Run command (check RC)
+description: Run a shell command and fail if non-zero.
+inputs:
+  cmd:
+    description: Command to run (single string)
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        set -Eeuo pipefail
+        source "$GITHUB_ACTION_PATH/../../ci/ci-helpers.sh"
+        ci_check_command_rc "${{ inputs.cmd }}"

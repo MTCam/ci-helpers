@@ -1,0 +1,35 @@
+name: CI using shared helpers
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Use your published composite actions (tag your repo, e.g., v1)
+      - name: Ensure README exists
+        uses: MTCam/ci-helpers/actions/check-file@v1
+        with:
+          path: README.md
+
+      - name: Validate config content
+        uses: MTCam/ci-helpers/actions/grep-file@v1
+        with:
+          needle: "enabled: true"
+          file: config.yaml
+
+      - name: Build
+        uses: MTCam/ci-helpers/actions/run-cmd@v1
+        with:
+          cmd: "make -j"
+
+      - name: Service reports ready
+        uses: MTCam/ci-helpers/actions/output-contains@v1
+        with:
+          cmd: "my_service --status"
+          needle: "ready"

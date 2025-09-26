@@ -1,0 +1,31 @@
+name: CI Helpers Example
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  example:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run sample script with helpers
+        run: |
+          bash examples/sample-ci-step.sh
+
+  # alternative approach
+  using-setup-helpers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup helpers
+        uses: MTCam/ci-helpers/actions/setup-helpers@v1
+      - name: Run checks (helpers auto-sourced)
+        shell: bash
+        run: |
+          ci_check_file README.md
+          ci_check_grep "enabled: true" config.yaml || ci_die "Config missing flag"
+          ci_check_command_rc "echo build ok"
