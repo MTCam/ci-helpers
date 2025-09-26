@@ -2,6 +2,7 @@
 # Minimal, dependency-free tests for ci-helpers.sh
 # Run locally: bash tests/test_ci_helpers.sh
 set -Eeuo pipefail
+set +e
 
 # Locate helpers (support either filename)
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
