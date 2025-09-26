@@ -11,24 +11,35 @@ runs:
       shell: bash
       run: |
         set -Eeuo pipefail
-        # Resolve helper path relative to this action
-        HELPERS="$GITHUB_ACTION_PATH/../../ci/ci-helpers.sh"
-        if [[ ! -f "$HELPERS" ]]; then
-          echo "ci-helpers.sh not found at: $HELPERS" >&2
+
+        # Locate helpers
+        CAND=(
+          "$GITHUB_ACTION_PATH/../../ci/ci-helpers.sh"
+          "$GITHUB_ACTION_PATH/../../ci/ci-helper.sh"
+        )
+        HELPERS=""
+        for p in "${CAND[@]}"; do
+          [[ -f "$p" ]] && HELPERS="$p" && break
+        done
+        if [[ -z "$HELPERS" ]]; then
+          echo "ci helpers not found (looked for ci-helpers.sh/ci-helper.sh)" >&2
           exit 1
         fi
 
-        # 1) Expose the path as an output
+        # Ensure BASH_ENV exists even under `set -u`
+        : "${BASH_ENV:=$RUNNER_TEMP/bash_env}"
+        touch "$BASH_ENV"
+
+        # Expose path as output
         echo "path=$HELPERS" >> "$GITHUB_OUTPUT"
 
-        # 2) Auto-source for *subsequent* bash steps by appending to $BASH_ENV
-        #    Any later 'shell: bash' step will start by sourcing the helpers.
+        # Auto-source for subsequent bash steps
         {
           echo "# Added by ci-helpers setup"
           echo "source \"$HELPERS\""
         } >> "$BASH_ENV"
 
-        # 3) Also export an env var (handy in scripts)
+        # Convenience env var
         echo "CI_HELPERS_SH=$HELPERS" >> "$GITHUB_ENV"
 
         echo "ci-helpers ready at $HELPERS"
